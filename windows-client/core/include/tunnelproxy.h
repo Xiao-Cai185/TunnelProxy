@@ -1,8 +1,10 @@
 #ifndef TUNNELPROXY_H
 #define TUNNELPROXY_H
 
-#include <windows.h>
+// 必须先包含 winsock2.h，再包含 windows.h，避免 winsock.h 被自动包含
 #include <winsock2.h>
+#include <ws2tcpip.h>
+#include <windows.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -15,6 +17,7 @@
 
 // 缓冲区大小
 #define MAX_PROCESS_NAME 256
+#define MAX_APP_NAME 256
 #define MAX_BUFFER_SIZE 65536
 #define PID_CACHE_SIZE 1024
 #define CONNECTION_HASH_SIZE 256

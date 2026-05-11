@@ -10,6 +10,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # 包含目录
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/src/windivert
 )
 
@@ -32,6 +33,13 @@ add_library(tunnelproxy SHARED ${SOURCES})
 
 # Windows 特定配置
 if(WIN32)
+    # 添加预处理器定义，防止 winsock.h 被包含
+    target_compile_definitions(tunnelproxy PRIVATE
+        WIN32_LEAN_AND_MEAN
+        _WINSOCK_DEPRECATED_NO_WARNINGS
+        TUNNELPROXY_EXPORTS
+    )
+
     # 链接 Windows 库
     target_link_libraries(tunnelproxy
         ws2_32      # Winsock2
@@ -80,9 +88,6 @@ if(WIN32)
         message(WARNING "WinDivert SDK not found at ${WINDIVERT_DIR}")
         message(WARNING "Please download WinDivert from https://github.com/basil00/Divert/releases")
     endif()
-
-    # 设置 DLL 导出
-    target_compile_definitions(tunnelproxy PRIVATE TUNNELPROXY_EXPORTS)
 endif()
 
 # 安装规则
