@@ -1,0 +1,190 @@
+name: Build Windows Client
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'windows-client/**'
+      - '.github/workflows/build-windows.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'windows-client/**'
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Download WinDivert SDK
+      shell: powershell
+      run: |
+        Write-Host "Downloading WinDivert SDK..."
+        $url = "https://github.com/basil00/WinDivert/releases/download/v2.2.2/WinDivert-2.2.2-A.zip"
+        $output = "WinDivert-2.2.2-A.zip"
+        Invoke-WebRequest -Uri $url -OutFile $output
+
+        Write-Host "Extracting WinDivert SDK..."
+        Expand-Archive -Path $output -DestinationPath "windows-client/core/third_party/WinDivert" -Force
+
+        # 移动文件到正确位置
+        Move-Item -Path "windows-client/core/third_party/WinDivert/WinDivert-2.2.2-A/*" -Destination "windows-client/core/third_party/WinDivert/" -Force
+        Remove-Item -Path "windows-client/core/third_party/WinDivert/WinDivert-2.2.2-A" -Recurse -Force
+
+        Write-Host "WinDivert SDK ready"
+
+    - name: Build Core Engine (C DLL)
+      shell: powershell
+      run: |
+        Write-Host "Building Core Engine..."
+        cd windows-client/core
+
+        # 创建构建目录
+        if (Test-Path build) { Remove-Item -Path build -Recurse -Force }
+        New-Item -ItemType Directory -Path build | Out-Null
+        cd build
+
+        # 配置 CMake
+        cmake .. -G "Visual Studio 17 2022" -A x64
+        if ($LASTEXITCODE -ne 0) {
+          Write-Error "CMake configuration failed"
+          exit 1
+        }
+
+        # 编译
+        cmake --build . --config Release
+        if ($LASTEXITCODE -ne 0) {
+          Write-Error "Core engine build failed"
+          exit 1
+        }
+
+        Write-Host "Core engine built successfully"
+
+    - name: Build GUI Application
+      shell: powershell
+      run: |
+        Write-Host "Building GUI Application..."
+        cd windows-client/gui
+
+        # 还原依赖
+        dotnet restore
+        if ($LASTEXITCODE -ne 0) {
+rite-Error "Dependency restore failed"
+          exit 1
+        }
+
+        # 编译并发布
+        dotnet publish -c Release -r win-x64 --self-contained -o publish
+        if ($LASTEXITCODE -ne 0) {
+          Write-Error "GUI build failed"
+          exit 1
+        }
+
+        Write-Host "GUI application built successfully"
+
+    - name: Package Release
+      shell: powershell
+      run: |
+        Write-Host "Packaging release..."
+
+        # 创建发布目录
+        $releaseDir = "windows-client/release/TunnelProxy-Windows-x64"
+        if (Test-Path $releaseDir) { Remove-Item -Path $releaseDir -Recurse -Force }
+        New-Item -ItemType Directory -Path $releaseDir -Force | Out-Null
+
+        # 复制 GUI 文件
+        Copy-Item -Path "windows-client/gui/publish/*" -Destination $releaseDir -Recurse -Force
+
+        # 复制核心引擎 DLL
+        Copy-Item -Path "windows-client/core/build/lib/Release/tunnelproxy.dll" -Destination $releaseDir -Force
+        Copy-Item -Path "windows-client/core/build/lib/Release/WinDivert.dll" -Destination $releaseDir -Force
+        Copy-Item -Path "windows-client/core/build/lib/Release/WinDivert64.sys" -Destination $releaseDir -Force
+
+        # 创建 README
+        @"
+TunnelProxy Windows 客户端
+============================
+
+版本：v1.0.0
+平台：Windows 10/11 (x64)
+构建时间：$(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+
+系统要求
+--------
+- Windows 10/11 (x64)
+- 管理员权限
+
+使用说明
+--------
+1. 右键点击 TunnelProxyGUI.exe，选择"以管理员身份运行"
+2. 输入设备 ID（在管理平台创建）
+3. 输入管理平台地址
+4. 点击"同步策略"获取配置
+5. 配置代理服务器信息
+6. 点击"启动"开始代理服务
+
+功能特性
+--------
+- 进程级流量拦截（基于 WinDivert）
+- 支持 SOCKS5 和 HTTP 代理
+- 规则匹配（支持通配符）
+- 实时连接日志
+- 策略自动同步
+
+注意事项
+--------
+- 必须以管理员权限运行
+- 首次运行可能需要安装驱动程序
+- 防火墙可能会提示允许网络访问
+
+项目地址
+--------
+https://github.com/Xiao-Cai185/TunnelProxy
+"@ | Out-File -FilePath "$releaseDir/README.txt" -Encoding UTF8
+
+        # 打包 ZIP
+        Compress-Archive -Path "$releaseDir/*" -DestinationPath "windows-client/release/TunnelProxy-Windows-x64.zip" -Force
+
+        Write-Host "Package created successfully"
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: TunnelProxy-Windows-x64
+        path: windows-client/release/TunnelProxy-Windows-x64.zip
+        retention-days: 90
+
+    - name: Upload to Release (on tag)
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: windows-client/release/TunnelProxy-Windows-x64.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Display Build Info
+      shell: powershell
+      run: |
+        Write-Host "========================================" -ForegroundColor Green
+        Write-Host "Build completed successfully!" -ForegroundColor Green
+        Write-Host "========================================" -ForegroundColor Green
+        Write-Host ""
+        Write-Host "Artifact: TunnelProxy-Windows-x64.zip"
+        Write-Host "Location: windows-client/release/"
+        Write-Host ""
+        $size = (Get-Item "windows-client/release/TunnelProxy-Windows-x64.zip").Length / 1MB
+        Write-Host "Package size: $([math]::Round($size, 2)) MB"
+        Write-Host ""
+        Write-Host "Download from: Actions -> Artifacts"

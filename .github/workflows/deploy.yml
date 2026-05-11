@@ -1,0 +1,56 @@
+name: Deploy to Server
+
+on:
+  workflow_run:
+    workflows: ["Build Windows Client"]
+    types:
+      - completed
+    branches: [main]
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: TunnelProxy-Windows-x64
+        path: ./artifact
+        run-id: ${{ github.event.workflow_run.id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Deploy to Server
+      if: github.event_name == 'workflow_run'
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        SERVER_HOST: ${{ secrets.DEPLOY_HOST }}
+        SERVER_USER: ${{ secrets.DEPLOY_USER }}
+      run: |
+        # 配置 SSH
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+        chmod 600 ~/.ssh/deploy_key
+        ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+
+        # 上传文件
+        scp -i ~/.ssh/deploy_key \
+          ./artifact/TunnelProxy-Windows-x64.zip \
+          $SERVER_USER@$SERVER_HOST:/home/ubuntu/cc/tunnelproxy/web-platform/frontend/public/Client/download/
+
+        echo "Deployment completed successfully!"
+
+    - name: Notify
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ Windows 客户端已成功部署到服务器"
+          echo "下载地址: http://144.24.14.106:3001/download"
+        else
+          echo "❌ 部署失败，请检查日志"
+        fi
