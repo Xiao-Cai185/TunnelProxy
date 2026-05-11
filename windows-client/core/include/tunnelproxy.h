@@ -21,6 +21,8 @@
 #define MAX_BUFFER_SIZE 65536
 #define PID_CACHE_SIZE 1024
 #define CONNECTION_HASH_SIZE 256
+#define PACKET_BUFFER_SIZE 65536
+#define PACKET_THREAD_COUNT 4
 
 // 规则协议类型
 typedef enum {

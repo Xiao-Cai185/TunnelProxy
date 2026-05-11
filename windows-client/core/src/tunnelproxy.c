@@ -1,4 +1,4 @@
-#include "include/tunnelproxy.h"
+#include "../include/tunnelproxy.h"
 #include "windivert/windivert.h"
 #include "windivert/packet_handler.h"
 #include "utils/process.h"
