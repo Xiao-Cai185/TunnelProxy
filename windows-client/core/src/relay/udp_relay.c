@@ -1,9 +1,13 @@
 #include "../include/tunnelproxy.h"
-#include "proxy/socks5.h"
-#include "utils/process.h"
+#include "udp_relay.h"
+#include "../proxy/socks5.h"
+#include "../utils/process.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+// 前向声明
+DWORD WINAPI UdpRelay_ServerThread(LPVOID param);
 
 // 外部变量
 extern bool g_running;

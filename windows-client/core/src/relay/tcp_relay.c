@@ -1,10 +1,15 @@
 #include "../include/tunnelproxy.h"
-#include "proxy/socks5.h"
-#include "proxy/http_connect.h"
-#include "utils/process.h"
+#include "tcp_relay.h"
+#include "../proxy/socks5.h"
+#include "../proxy/http_connect.h"
+#include "../utils/process.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+// 前向声明
+DWORD WINAPI TcpRelay_ServerThread(LPVOID param);
+DWORD WINAPI TcpRelay_ConnectionThread(LPVOID param);
 
 // 外部变量
 extern bool g_running;

@@ -14,6 +14,10 @@
 // 端口定义
 #define LOCAL_PROXY_PORT 34010
 #define LOCAL_UDP_RELAY_PORT 34011
+#define LOCAL_TCP_RELAY_PORT 34010
+
+// 配置文件路径
+#define CONFIG_FILE_PATH "tunnelproxy_config.json"
 
 // 缓冲区大小
 #define MAX_PROCESS_NAME 256

@@ -1,10 +1,14 @@
 #include "../include/tunnelproxy.h"
+#include "packet_handler.h"
 #include "windivert.h"
-#include "utils/process.h"
-#include "rules/rule_engine.h"
+#include "../utils/process.h"
+#include "../rules/rule_engine.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+// 前向声明
+DWORD WINAPI PacketHandler_Thread(LPVOID param);
 
 // 外部变量
 extern HANDLE g_windivert_handle;

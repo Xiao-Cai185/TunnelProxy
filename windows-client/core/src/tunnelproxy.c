@@ -1,5 +1,5 @@
 #include "../include/tunnelproxy.h"
-#include "windivert/windivert.h"
+#include "windivert.h"
 #include "windivert/packet_handler.h"
 #include "utils/process.h"
 #include "rules/rule_engine.h"
