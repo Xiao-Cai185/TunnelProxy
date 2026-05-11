@@ -8,6 +8,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+// DLL 导出宏定义
+#ifdef TUNNELPROXY_EXPORTS
+    #define TUNNELPROXY_API __declspec(dllexport)
+#else
+    #define TUNNELPROXY_API __declspec(dllimport)
+#endif
+
 // 版本信息
 #define TUNNELPROXY_VERSION "1.0.0"
 
@@ -84,56 +91,56 @@ typedef void (*ConnectionCallback)(const char *protocol, const char *process,
 // ==================== 核心引擎 API ====================
 
 // 初始化 TunnelProxy 引擎
-bool TunnelProxy_Init(LogCallback log_cb, ConnectionCallback conn_cb);
+TUNNELPROXY_API bool TunnelProxy_Init(LogCallback log_cb, ConnectionCallback conn_cb);
 
 // 启动 TunnelProxy 引擎
-bool TunnelProxy_Start(void);
+TUNNELPROXY_API bool TunnelProxy_Start(void);
 
 // 停止 TunnelProxy 引擎
-void TunnelProxy_Stop(void);
+TUNNELPROXY_API void TunnelProxy_Stop(void);
 
 // 清理 TunnelProxy 引擎
-void TunnelProxy_Cleanup(void);
+TUNNELPROXY_API void TunnelProxy_Cleanup(void);
 
 // 检查引擎是否正在运行
-bool TunnelProxy_IsRunning(void);
+TUNNELPROXY_API bool TunnelProxy_IsRunning(void);
 
 // ==================== 配置管理 API ====================
 
 // 设置代理配置
-bool TunnelProxy_SetProxyConfig(const ProxyConfig *config);
+TUNNELPROXY_API bool TunnelProxy_SetProxyConfig(const ProxyConfig *config);
 
 // 获取代理配置
-bool TunnelProxy_GetProxyConfig(ProxyConfig *config);
+TUNNELPROXY_API bool TunnelProxy_GetProxyConfig(ProxyConfig *config);
 
 // 添加策略规则
-bool TunnelProxy_AddPolicy(const PolicyRule *policy);
+TUNNELPROXY_API bool TunnelProxy_AddPolicy(const PolicyRule *policy);
 
 // 删除策略规则
-bool TunnelProxy_RemovePolicy(const char *app_name);
+TUNNELPROXY_API bool TunnelProxy_RemovePolicy(const char *app_name);
 
 // 清空所有策略规则
-void TunnelProxy_ClearPolicies(void);
+TUNNELPROXY_API void TunnelProxy_ClearPolicies(void);
 
 // 获取策略规则数量
-int TunnelProxy_GetPolicyCount(void);
+TUNNELPROXY_API int TunnelProxy_GetPolicyCount(void);
 
 // 获取策略规则列表
-bool TunnelProxy_GetPolicies(PolicyRule *policies, int max_count);
+TUNNELPROXY_API bool TunnelProxy_GetPolicies(PolicyRule *policies, int max_count);
 
 // ==================== 同步管理 API ====================
 
 // 设置同步服务器地址
-bool TunnelProxy_SetSyncServer(const char *server_url, const char *device_id);
+TUNNELPROXY_API bool TunnelProxy_SetSyncServer(const char *server_url, const char *device_id);
 
 // 从服务器同步策略
-bool TunnelProxy_SyncPolicies(void);
+TUNNELPROXY_API bool TunnelProxy_SyncPolicies(void);
 
 // 发送心跳到服务器
-bool TunnelProxy_SendHeartbeat(void);
+TUNNELPROXY_API bool TunnelProxy_SendHeartbeat(void);
 
 // 获取最后同步时间
-bool TunnelProxy_GetLastSyncTime(char *time_str, int max_len);
+TUNNELPROXY_API bool TunnelProxy_GetLastSyncTime(char *time_str, int max_len);
 
 // ==================== 统计信息 API ====================
 
@@ -145,7 +152,10 @@ typedef struct {
     uint64_t blocked_connections;
 } ConnectionStats;
 
-bool TunnelProxy_GetStats(ConnectionStats *stats);
+TUNNELPROXY_API bool TunnelProxy_GetStats(ConnectionStats *stats);
+
+// 重置统计信息
+TUNNELPROXY_API void TunnelProxy_ResetStats(void);
 
 // 重置统计信息
 void TunnelProxy_ResetStats(void);

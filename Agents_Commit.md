@@ -6,6 +6,33 @@
 
 ## 2026-05-11
 
+### Commit: fa49707
+**提交信息**: 修复 Windows 客户端打包路径问题
+
+**修改内容**:
+- 将发布目录从 `windows-client/release` 改为 `windows-client/publish`
+- 支持多种可能的 DLL 输出路径自动查找（`build/Release/`, `build/lib/Release/`, `build/bin/Release/`）
+- 自动从 DLL 所在目录复制 WinDivert 依赖文件（WinDivert.dll, WinDivert64.sys）
+- 更新所有相关步骤的路径引用（Upload Artifact, Upload to Release, Display Build Info）
+
+**修改原因**:
+- 之前硬编码的 DLL 路径 `windows-client/core/build/lib/Release/tunnelproxy.dll` 不存在
+- CMake 在不同配置下可能将 DLL 输出到不同位置
+- 用户要求将发布文件放到 `publish` 文件夹而不是 `release` 文件夹
+
+**影响范围**:
+- GitHub Actions 自动编译流程中的打包步骤
+- Artifact 上传路径
+- Release 文件上传路径
+
+**技术细节**:
+- 使用 PowerShell 数组遍历多个可能的 DLL 路径
+- 使用 `Test-Path` 检查文件是否存在
+- 使用 `Split-Path -Parent` 获取 DLL 所在目录
+- 从同一目录复制所有相关的 WinDivert 文件
+
+---
+
 ### Commit: e4252c4
 **提交信息**: 彻底移除 PowerShell here-string 语法，改用字符串拼接
 
