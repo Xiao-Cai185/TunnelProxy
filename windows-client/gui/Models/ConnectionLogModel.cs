@@ -1,3 +1,5 @@
+using System;
+
 namespace TunnelProxyGUI.Models;
 
 public class ConnectionLogModel
