@@ -14,26 +14,24 @@
 #include <string.h>
 #include <time.h>
 
-// 全局状态
-static bool g_running = false;
+// 全局状态（导出给其他模块使用）
+bool g_running = false;
+HANDLE g_windivert_handle = INVALID_HANDLE_VALUE;
+ConnectionCallback g_connection_callback = NULL;
+ProxyConfig g_proxy_config = {0};
+PolicyRule *g_policies = NULL;
+int g_policy_count = 0;
+ConnectionStats g_stats = {0};
+
+// 内部状态（仅在本文件使用）
 static bool g_initialized = false;
-static HANDLE g_windivert_handle = INVALID_HANDLE_VALUE;
 static HANDLE g_packet_threads[4] = {NULL};
 static HANDLE g_proxy_thread = NULL;
 static HANDLE g_udp_relay_thread = NULL;
 
 // 回调函数
 static LogCallback g_log_callback = NULL;
-static ConnectionCallback g_connection_callback = NULL;
-
-// 配置
-static ProxyConfig g_proxy_config = {0};
-static PolicyRule *g_policies = NULL;
-static int g_policy_count = 0;
 static SyncConfig g_sync_config = {0};
-
-// 统计信息
-static ConnectionStats g_stats = {0};
 
 // 日志函数
 static void log_message(const char *format, ...) {
