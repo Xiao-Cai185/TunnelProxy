@@ -1,0 +1,70 @@
+# 依赖和构建产物
+node_modules/
+dist/
+build/
+publish/
+release/
+*.log
+*.tmp
+
+# 编译产物
+*.dll
+*.exe
+*.so
+*.dylib
+*.o
+*.obj
+*.pdb
+*.ilk
+
+# IDE 和编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 环境配置
+.env
+.env.local
+*.local
+
+# 数据库
+*.db
+*.sqlite
+*.sqlite3
+
+# Go
+go.sum
+vendor/
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+
+# WinDivert SDK（太大，需要手动下载）
+windows-client/WinDivert-2.2.2-A/
+windows-client/WinDivert-*.zip
+windows-client/core/third_party/WinDivert/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# 临时文件
+*.bak
+*.cache
+*.temp
+.dotnet/
+
+# 下载的客户端包（编译后生成）
+web-platform/frontend/public/Client/download/*.zip
+
+# 后端编译产物
+web-platform/backend/tunnelproxy-server
+web-platform/backend/tunnelproxy.db
