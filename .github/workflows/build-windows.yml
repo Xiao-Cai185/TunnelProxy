@@ -112,40 +112,8 @@ jobs:
         Copy-Item -Path "windows-client/core/build/lib/Release/WinDivert.dll" -Destination $releaseDir -Force
         Copy-Item -Path "windows-client/core/build/lib/Release/WinDivert64.sys" -Destination $releaseDir -Force
 
-        # 创建 README
-        $readme = "TunnelProxy Windows 客户端`n"
-        $readme += "============================`n`n"
-        $readme += "版本：v1.0.0`n"
-        $readme += "平台：Windows 10/11 (x64)`n"
-        $readme += "构建时间：$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')`n`n"
-        $readme += "系统要求`n"
-        $readme += "--------`n"
-        $readme += "- Windows 10/11 (x64)`n"
-        $readme += "- 管理员权限`n`n"
-        $readme += "使用说明`n"
-        $readme += "--------`n"
-        $readme += "1. 右键点击 TunnelProxyGUI.exe，选择`"以管理员身份运行`"`n"
-        $readme += "2. 输入设备 ID（在管理平台创建）`n"
-        $readme += "3. 输入管理平台地址`n"
-        $readme += "4. 点击`"同步策略`"获取配置`n"
-        $readme += "5. 配置代理服务器信息`n"
-        $readme += "6. 点击`"启动`"开始代理服务`n`n"
-        $readme += "功能特性`n"
-        $readme += "--------`n"
-        $readme += "- 进程级流量拦截（基于 WinDivert）`n"
-        $readme += "- 支持 SOCKS5 和 HTTP 代理`n"
-        $readme += "- 规则匹配（支持通配符）`n"
-        $readme += "- 实时连接日志`n"
-        $readme += "- 策略自动同步`n`n"
-        $readme += "注意事项`n"
-        $readme += "--------`n"
-        $readme += "- 必须以管理员权限运行`n"
-        $readme += "- 首次运行可能需要安装驱动程序`n"
-        $readme += "- 防火墙可能会提示允许网络访问`n`n"
-        $readme += "项目地址`n"
-        $readme += "--------`n"
-        $readme += "https://github.com/Xiao-Cai185/TunnelProxy`n"
-        $readme | Out-File -FilePath "$releaseDir/README.txt" -Encoding UTF8
+        # 复制 README 文件
+        Copy-Item -Path "windows-client/README.txt" -Destination $releaseDir -Force
 
         # 打包 ZIP
         Compress-Archive -Path "$releaseDir/*" -DestinationPath "windows-client/release/TunnelProxy-Windows-x64.zip" -Force
