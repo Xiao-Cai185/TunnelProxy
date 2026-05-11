@@ -113,7 +113,7 @@ jobs:
         Copy-Item -Path "windows-client/core/build/lib/Release/WinDivert64.sys" -Destination $releaseDir -Force
 
         # 创建 README
-        @"
+        $readmeContent = @"
 TunnelProxy Windows 客户端
 ============================
 
@@ -152,7 +152,8 @@ TunnelProxy Windows 客户端
 项目地址
 --------
 https://github.com/Xiao-Cai185/TunnelProxy
-"@ | Out-File -FilePath "$releaseDir/README.txt" -Encoding UTF8
+"@
+        $readmeContent | Out-File -FilePath "$releaseDir/README.txt" -Encoding UTF8
 
         # 打包 ZIP
         Compress-Archive -Path "$releaseDir/*" -DestinationPath "windows-client/release/TunnelProxy-Windows-x64.zip" -Force
