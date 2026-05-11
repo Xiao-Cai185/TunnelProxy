@@ -81,7 +81,7 @@ jobs:
         # 还原依赖
         dotnet restore
         if ($LASTEXITCODE -ne 0) {
-rite-Error "Dependency restore failed"
+          Write-Error "Dependency restore failed"
           exit 1
         }
 
